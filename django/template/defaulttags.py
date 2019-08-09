@@ -1,3 +1,10 @@
+
+# Last-Modified：2019年8月9日22:44:09
+# View-Couter：1
+
+# 默认的标签系统也可以自定义
+# tag 返回的是一个节点 可以做很多事情
+
 """Default tags used by the template system, available to all templates."""
 import re
 import sys
@@ -1313,7 +1320,8 @@ def templatetag(parser, token):
 
 @register.tag
 def url(parser, token):
-    r"""
+    """
+    不要混合使用位置参数和关键字参数
     Return an absolute URL matching the given view with its parameters.
 
     This is a way to define links that aren't tied to a particular URL

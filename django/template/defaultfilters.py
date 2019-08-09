@@ -1,4 +1,7 @@
-"""Default variable filters."""
+# Last-Modified：2019年8月9日21:18:43
+# View-Counter：1
+
+"""默认的变量过滤器可以好好学习一下"""
 import random as random_module
 import re
 import types
@@ -34,6 +37,7 @@ register = Library()
 
 def stringfilter(func):
     """
+    用来装饰过滤器函数的字符装装饰器，会把第一个参数转化成字符
     Decorator for filters which should only receive strings. The object
     passed as the first positional argument will be converted to a string.
     """
@@ -49,7 +53,7 @@ def stringfilter(func):
     # arguments by the template parser, and to bear the 'is_safe' attribute
     # when multiple decorators are applied).
     _dec._decorated_function = getattr(func, '_decorated_function', func)
-
+    # 装饰器的写法不统一 大概不是一个人写的 相当于 @wraps(func)
     return wraps(func)(_dec)
 
 
@@ -273,6 +277,7 @@ def truncatechars_html(value, arg):
 @stringfilter
 def truncatewords(value, arg):
     """
+    也是不支持中文单词的
     Truncate a string after `arg` number of words.
     Remove newlines within the string.
     """
@@ -325,6 +330,8 @@ def urlencode(value, safe=None):
 @stringfilter
 def urlize(value, autoescape=True):
     """Convert URLs in plain text into clickable links."""
+    # 直接把 object 转 可点击的 url 
+    # 可以用 object.get_absolute_url|urlize
     return mark_safe(_urlize(value, nofollow=True, autoescape=autoescape))
 
 
@@ -344,6 +351,7 @@ def urlizetrunc(value, limit, autoescape=True):
 @stringfilter
 def wordcount(value):
     """Return the number of words."""
+    # 中文单词就不行了 要中文分词得引入 jieba 分词
     return len(value.split())
 
 
@@ -351,6 +359,7 @@ def wordcount(value):
 @stringfilter
 def wordwrap(value, arg):
     """Wrap words at `arg` line length."""
+    # 按照行的长度来打包单词
     return wrap(value, int(arg))
 
 
@@ -389,6 +398,9 @@ def cut(value, arg):
 ###################
 # HTML STRINGS    #
 ###################
+
+# escape 所谓转义 就是 html 格式的原样显式
+# 而 safe 就是可以直接插入进行渲染
 
 @register.filter("escape", is_safe=True)
 @stringfilter
@@ -491,6 +503,7 @@ def _property_resolver(arg):
 @register.filter(is_safe=False)
 def dictsort(value, arg):
     """
+    这个本来就是给定字典列表，单纯列表的话也使用了 itemgetter 也可以排序。
     Given a list of dicts, return that list sorted by the property given in
     the argument.
     """
@@ -566,6 +579,7 @@ def random(value):
     return random_module.choice(value)
 
 
+# 和内部函数重名就在注册时给名字
 @register.filter("slice", is_safe=True)
 def slice_filter(value, arg):
     """
@@ -584,6 +598,9 @@ def slice_filter(value, arg):
         return value  # Fail silently.
 
 
+# 内嵌列表转无序列表
+# 按这种逻辑 我可以把常用的树结构目录结构做成过滤器啊
+# 
 @register.filter(is_safe=True, needs_autoescape=True)
 def unordered_list(value, autoescape=True):
     """

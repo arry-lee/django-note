@@ -1,3 +1,8 @@
+# Last-Modified：2019年8月9日19:43:42
+# View-Couter：1
+
+""" 上下文字典类"""
+
 from contextlib import contextmanager
 from copy import copy
 
@@ -11,11 +16,12 @@ class ContextPopException(Exception):
 
 
 class ContextDict(dict):
+    """实现了上下文管理器的字典"""
     def __init__(self, context, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs) # 这里把**kwargs转换成了字典
 
-        context.dicts.append(self)
-        self.context = context
+        context.dicts.append(self) #加给了自己
+        self.context = context # 本质上是字典列表
 
     def __enter__(self):
         return self
@@ -25,6 +31,7 @@ class ContextDict(dict):
 
 
 class BaseContext:
+    """一个表现的像字典的字典列表"""
     def __init__(self, dict_=None):
         self._reset_dicts(dict_)
 
@@ -49,9 +56,11 @@ class BaseContext:
         dicts = []
         for d in args:
             if isinstance(d, BaseContext):
-                dicts += d.dicts[1:]
+                dicts += d.dicts[1:]  #是基本上下文就连接字典列表去掉builtins
             else:
                 dicts.append(d)
+        # 给self增加了context字典列表
+        # 并且返回的 self
         return ContextDict(self, *dicts, **kwargs)
 
     def pop(self):
@@ -60,11 +69,13 @@ class BaseContext:
         return self.dicts.pop()
 
     def __setitem__(self, key, value):
+        # 修改当前上下文的值
         "Set a variable in the current context"
         self.dicts[-1][key] = value
 
     def set_upward(self, key, value):
         """
+        设置最高级上下文的键值
         Set a variable in one of the higher contexts if it exists there,
         otherwise in the current context.
         """
@@ -76,6 +87,7 @@ class BaseContext:
         context[key] = value
 
     def __getitem__(self, key):
+        # 当前往上查找 d[key]
         "Get a variable's value, starting at the current context and going upward"
         for d in reversed(self.dicts):
             if key in d:
@@ -83,6 +95,7 @@ class BaseContext:
         raise KeyError(key)
 
     def __delitem__(self, key):
+        # 删除当前上下文里的键
         "Delete a variable from the current context"
         del self.dicts[-1][key]
 
@@ -113,6 +126,7 @@ class BaseContext:
 
     def flatten(self):
         """
+        碾平字典列表返回单个字典
         Return self.dicts as one dictionary.
         """
         flat = {}
@@ -133,6 +147,7 @@ class BaseContext:
 
 
 class Context(BaseContext):
+    # 可变上下文的栈
     "A stack container for variable context"
     def __init__(self, dict_=None, autoescape=True, use_l10n=None, use_tz=None):
         self.autoescape = autoescape
@@ -264,6 +279,7 @@ class RequestContext(Context):
 
 def make_context(context, request=None, **kwargs):
     """
+    用 dict 和可选的 HttpRequest 创建上下文对象
     Create a suitable Context from a plain dict and optionally an HttpRequest.
     """
     if context is not None and not isinstance(context, dict):

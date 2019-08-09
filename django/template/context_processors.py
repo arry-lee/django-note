@@ -1,4 +1,8 @@
+# Last-Modified：2019年8月9日20:19:06
+# View-Couter：1
+
 """
+请求处理器，每个都是接受请求，返回字典加入上下文。
 A set of request processors that return dictionaries to be merged into a
 template context. Each function takes the request object as its only parameter
 and returns a dictionary to add to the context.
@@ -22,6 +26,7 @@ def csrf(request):
     def _get_val():
         token = get_token(request)
         if token is None:
+            # sentinel 哨兵
             # In order to be able to provide debugging info in the
             # case of misconfiguration, we use a sentinel value
             # instead of returning an empty dict.
