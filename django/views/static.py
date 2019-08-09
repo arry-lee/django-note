@@ -1,4 +1,5 @@
 """
+@arry:开发时所用到的静态文件服务视图，不要用在生产环境里
 Views and functions for serving static files. These are only to be used
 during development, and SHOULD NOT be used in a production setting.
 """

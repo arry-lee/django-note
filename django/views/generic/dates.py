@@ -1,3 +1,7 @@
+"""
+Last-View：2019年8月9日08:29:16
+View-Counter：1
+"""
 import datetime
 
 from django.conf import settings
@@ -310,6 +314,7 @@ class BaseDateListView(MultipleObjectMixin, DateMixin, View):
 
     def get_ordering(self):
         """
+        按时间排序或者按self.ordering 排序
         Return the field or fields to use for ordering the queryset; use the
         date field by default.
         """

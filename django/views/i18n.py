@@ -1,3 +1,6 @@
+"""
+国际化工具，实现词条翻译
+"""
 import itertools
 import json
 import os

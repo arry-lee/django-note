@@ -9,6 +9,7 @@ from django.views.generic.edit import (
 )
 from django.views.generic.list import ListView
 
+## 导进来方便导入 from django.views.generic import *
 __all__ = [
     'View', 'TemplateView', 'RedirectView', 'ArchiveIndexView',
     'YearArchiveView', 'MonthArchiveView', 'WeekArchiveView', 'DayArchiveView',

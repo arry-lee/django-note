@@ -1,3 +1,7 @@
+"""
+Last-View：2019年8月9日08:10:03
+View-Counter：1
+"""
 from django.core.exceptions import ImproperlyConfigured
 from django.forms import models as model_forms
 from django.http import HttpResponseRedirect
@@ -8,32 +12,33 @@ from django.views.generic.detail import (
 
 
 class FormMixin(ContextMixin):
-    """Provide a way to show and handle a form in a request."""
+    """提供里一个处理表单的mixin"""
     initial = {}
     form_class = None
     success_url = None
     prefix = None
 
     def get_initial(self):
-        """Return the initial data to use for forms on this view."""
+        """返回初始化表单数据的一个拷贝"""
         return self.initial.copy()
 
     def get_prefix(self):
-        """Return the prefix to use for forms."""
+        """返回这个表单的前缀"""
+        ## 前缀在表单里面的位置和作用是什么？
         return self.prefix
 
     def get_form_class(self):
-        """Return the form class to use."""
+        """返回这个表单的类"""
         return self.form_class
 
     def get_form(self, form_class=None):
-        """Return an instance of the form to be used in this view."""
+        """获取这个视图所用表单的实例"""
         if form_class is None:
             form_class = self.get_form_class()
         return form_class(**self.get_form_kwargs())
 
     def get_form_kwargs(self):
-        """Return the keyword arguments for instantiating the form."""
+        """返回实例化表单的关键字参数"""
         kwargs = {
             'initial': self.get_initial(),
             'prefix': self.get_prefix(),
@@ -47,32 +52,34 @@ class FormMixin(ContextMixin):
         return kwargs
 
     def get_success_url(self):
-        """Return the URL to redirect to after processing a valid form."""
+        """提交表单合法之后的重定向必须有"""
         if not self.success_url:
             raise ImproperlyConfigured("No URL to redirect to. Provide a success_url.")
         return str(self.success_url)  # success_url may be lazy
 
     def form_valid(self, form):
-        """If the form is valid, redirect to the supplied URL."""
+        """如果表单验证通过 重定向到成功页面"""
+        # 这里必须重写
         return HttpResponseRedirect(self.get_success_url())
 
     def form_invalid(self, form):
-        """If the form is invalid, render the invalid form."""
+        """表单验证不合法 则返回该表单"""
         return self.render_to_response(self.get_context_data(form=form))
 
     def get_context_data(self, **kwargs):
-        """Insert the form into the context dict."""
+        """把表单放进上下文"""
         if 'form' not in kwargs:
             kwargs['form'] = self.get_form()
         return super().get_context_data(**kwargs)
 
 
 class ModelFormMixin(FormMixin, SingleObjectMixin):
-    """Provide a way to show and handle a ModelForm in a request."""
-    fields = None
+    """提供一个展示和处理模型表单的mixin"""
+    fields = None # 展示字段
 
     def get_form_class(self):
-        """Return the form class to use in this view."""
+        """返回用在视图里的表单类"""
+        # fields 和 form_class 不能同时使用
         if self.fields is not None and self.form_class:
             raise ImproperlyConfigured(
                 "Specifying both 'fields' and 'form_class' is not permitted."
@@ -81,15 +88,13 @@ class ModelFormMixin(FormMixin, SingleObjectMixin):
             return self.form_class
         else:
             if self.model is not None:
-                # If a model has been explicitly provided, use it
+                # 如果显式提供了 model 使用之
                 model = self.model
             elif getattr(self, 'object', None) is not None:
-                # If this view is operating on a single object, use
-                # the class of that object
+                # 如果该视图操作单例对象，用它的类
                 model = self.object.__class__
             else:
-                # Try to get a queryset and extract the model class
-                # from that
+                # 获取查询集的模型类
                 model = self.get_queryset().model
 
             if self.fields is None:
@@ -97,22 +102,25 @@ class ModelFormMixin(FormMixin, SingleObjectMixin):
                     "Using ModelFormMixin (base class of %s) without "
                     "the 'fields' attribute is prohibited." % self.__class__.__name__
                 )
-
+            # 使用model_forms 的工厂函数生成模型表单类
             return model_forms.modelform_factory(model, fields=self.fields)
 
     def get_form_kwargs(self):
-        """Return the keyword arguments for instantiating the form."""
+        """返回实例化表单是关键字参数"""
         kwargs = super().get_form_kwargs()
         if hasattr(self, 'object'):
+            # 上下文里的 instance 源自此处
             kwargs.update({'instance': self.object})
         return kwargs
 
     def get_success_url(self):
-        """Return the URL to redirect to after processing a valid form."""
+        """处理完成之后的重定向"""
         if self.success_url:
+            # url 的 format 方法能做什么？
             url = self.success_url.format(**self.object.__dict__)
         else:
             try:
+                ## 模型提供了 get_absolute_url 的话会很方便
                 url = self.object.get_absolute_url()
             except AttributeError:
                 raise ImproperlyConfigured(
@@ -121,21 +129,21 @@ class ModelFormMixin(FormMixin, SingleObjectMixin):
         return url
 
     def form_valid(self, form):
-        """If the form is valid, save the associated model."""
+        """表单验证提供.直接保存表单创建模型实例"""
         self.object = form.save()
+        # 顶层最终是要回到 success url 的
         return super().form_valid(form)
 
 
 class ProcessFormView(View):
-    """Render a form on GET and processes it on POST."""
+    """GET 渲染 POST 处理"""
     def get(self, request, *args, **kwargs):
-        """Handle GET requests: instantiate a blank version of the form."""
+        """GET 返回空白表单"""
         return self.render_to_response(self.get_context_data())
 
     def post(self, request, *args, **kwargs):
         """
-        Handle POST requests: instantiate a form instance with the passed
-        POST variables and then check if it's valid.
+        通过POST的数据实例化表单，然后验证
         """
         form = self.get_form()
         if form.is_valid():
@@ -150,18 +158,18 @@ class ProcessFormView(View):
 
 
 class BaseFormView(FormMixin, ProcessFormView):
-    """A base view for displaying a form."""
+    """展示表单的基类"""
 
 
 class FormView(TemplateResponseMixin, BaseFormView):
-    """A view for displaying a form and rendering a template response."""
+    """用模板展示表单的基类"""
 
 
 class BaseCreateView(ModelFormMixin, ProcessFormView):
     """
-    Base view for creating a new object instance.
+    创建一个实例对象的基类视图
 
-    Using this base class requires subclassing to provide a response mixin.
+    需要继承并提供一个响应response的混类.
     """
     def get(self, request, *args, **kwargs):
         self.object = None
@@ -174,6 +182,7 @@ class BaseCreateView(ModelFormMixin, ProcessFormView):
 
 class CreateView(SingleObjectTemplateResponseMixin, BaseCreateView):
     """
+    创建一个对象，使用一个渲染的模板相应
     View for creating a new object, with a response rendered by a template.
     """
     template_name_suffix = '_form'
@@ -186,6 +195,7 @@ class BaseUpdateView(ModelFormMixin, ProcessFormView):
     Using this base class requires subclassing to provide a response mixin.
     """
     def get(self, request, *args, **kwargs):
+        # get_object 需要被基类实现
         self.object = self.get_object()
         return super().get(request, *args, **kwargs)
 
@@ -200,13 +210,12 @@ class UpdateView(SingleObjectTemplateResponseMixin, BaseUpdateView):
 
 
 class DeletionMixin:
-    """Provide the ability to delete objects."""
+    """提供删除对象的能力视图"""
     success_url = None
 
     def delete(self, request, *args, **kwargs):
         """
-        Call the delete() method on the fetched object and then redirect to the
-        success URL.
+        找到对象删除之，返回删除成功的 url
         """
         self.object = self.get_object()
         success_url = self.get_success_url()
@@ -235,6 +244,7 @@ class BaseDeleteView(DeletionMixin, BaseDetailView):
 
 class DeleteView(SingleObjectTemplateResponseMixin, BaseDeleteView):
     """
+    还要返回一个确认删除的页面
     View for deleting an object retrieved with self.get_object(), with a
     response rendered by a template.
     """
