@@ -1,8 +1,13 @@
+"""
+Last-View：2019年8月9日09:25:04
+View-Counter：1
+根据请求头的项缓存装饰器 @vary_on_headers('Cookie', 'Accept-language') @vary_on_cookie
+"""
 from functools import wraps
 
 from django.utils.cache import patch_vary_headers
 
-
+## 根据请求头的项生成缓存
 def vary_on_headers(*headers):
     """
     A view decorator that adds the specified headers to the Vary header of the
@@ -24,6 +29,7 @@ def vary_on_headers(*headers):
     return decorator
 
 
+## 根据 cookie 缓存
 def vary_on_cookie(func):
     """
     A view decorator that adds "Cookie" to the Vary header of a response. This

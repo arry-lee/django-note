@@ -1,3 +1,7 @@
+"""
+Last-View：2019年8月9日08:51:14
+View-Counter：1
+"""
 from functools import wraps
 
 from django.middleware.cache import CacheMiddleware
@@ -7,23 +11,24 @@ from django.utils.decorators import decorator_from_middleware_with_args
 
 def cache_page(timeout, *, cache=None, key_prefix=None):
     """
-    Decorator for views that tries getting the page from the cache and
-    populates the cache if the page isn't in the cache yet.
+    用于尝试从缓存中获取页面的视图的装饰器
+    如果页面尚未在缓存中，则填充缓存。
 
-    The cache is keyed by the URL and some data from the headers.
-    Additionally there is the key prefix that is used to distinguish different
-    cache areas in a multi-site setup. You could use the
-    get_current_site().domain, for example, as that is unique across a Django
-    project.
+    缓存的键 由URL和标头中的一些数据生成。
+    此外，还有用于区分不同的键前缀
+    缓存多站点设置中的区域。 你可以使用
+    get_current_site域，例如，因为它在Django中是唯一的
+    项目。
 
-    Additionally, all headers from the response's Vary header will be taken
-    into account on caching -- just like the middleware does.
+    此外，将采用响应的Vary标头中的所有标头考虑缓存 - 就像中间件一样。
+    不同的请求头缓存不一样
     """
     return decorator_from_middleware_with_args(CacheMiddleware)(
         cache_timeout=timeout, cache_alias=cache, key_prefix=key_prefix
     )
 
 
+# kwargs用于控制缓存行为打补丁一样
 def cache_control(**kwargs):
     def _cache_controller(viewfunc):
         @wraps(viewfunc)
@@ -37,6 +42,7 @@ def cache_control(**kwargs):
 
 def never_cache(view_func):
     """
+    把响应里加上 never_cache 的响应头
     Decorator that adds headers to a response so that it will never be cached.
     """
     @wraps(view_func)

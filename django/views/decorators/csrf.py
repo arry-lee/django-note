@@ -1,3 +1,7 @@
+"""
+Last-View：2019年8月9日09:01:07
+View-Counter：1
+"""
 from functools import wraps
 
 from django.middleware.csrf import CsrfViewMiddleware, get_token
@@ -45,7 +49,7 @@ Use this decorator to ensure that a view sets a CSRF cookie, whether or not it
 uses the csrf_token template tag, or the CsrfViewMiddleware is used.
 """
 
-
+# 不需要csrf保护的装饰器 被装饰的视图免于csrf检验
 def csrf_exempt(view_func):
     """Mark a view function as being exempt from the CSRF view protection."""
     # view_func.csrf_exempt = True would also work, but decorators are nicer

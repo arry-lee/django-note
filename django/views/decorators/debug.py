@@ -1,8 +1,14 @@
+"""
+Last-View：2019年8月9日09:01:25
+View-Counter：1
+"""
+
 import functools
 
 from django.http import HttpRequest
 
-
+# 表示函数的某些变量是敏感的，不可LOG的 装饰器
+# 给函数增加了 sensitive_variables 的属性
 def sensitive_variables(*variables):
     """
     Indicate which variables used in the decorated function are sensitive so
@@ -37,7 +43,8 @@ def sensitive_variables(*variables):
         return sensitive_variables_wrapper
     return decorator
 
-
+# 表示某些POST参数是敏感的，不可LOG的 装饰器
+# 给 request 增加了 sensitive_post_parameters 属性
 def sensitive_post_parameters(*parameters):
     """
     Indicate which POST parameters used in the decorated view are sensitive,
