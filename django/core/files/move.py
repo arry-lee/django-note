@@ -29,6 +29,9 @@ def _samefile(src, dst):
 
 def file_move_safe(old_file_name, new_file_name, chunk_size=1024 * 64, allow_overwrite=False):
     """
+    安全的移动文件
+    尝试重命名
+    不行就读取拷贝
     Move a file from one location to another in the safest way possible.
 
     First, try ``os.rename``, which is simple but will break across filesystems.

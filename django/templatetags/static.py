@@ -1,3 +1,14 @@
+# Last-Modified：2019年8月9日23:36:51
+# View-Couter：1
+# 引入静态文件
+
+"""        
+{% static "myapp/css/base.css" %}
+{% static variable_with_path %}
+{% static "myapp/css/base.css" as admin_base_css %}
+{% static variable_with_path as varname %}
+""" 
+
 from urllib.parse import quote, urljoin
 
 from django import template

@@ -1,3 +1,9 @@
+# Last-Modified：2019年8月10日08:39:20
+# View-Couter：1
+
+# WSGI是 python 的一个协议 离了 python就没有用
+# 内部的开发环境服务器 Python WSGI 协议
+# wsgiref.simple_server 实现了 wsgi 参考
 """
 HTTP server that implements the Python WSGI protocol (PEP 333, rev 1.21).
 
@@ -62,7 +68,7 @@ class WSGIServer(simple_server.WSGIServer):
 
     def __init__(self, *args, ipv6=False, allow_reuse_address=True, **kwargs):
         if ipv6:
-            self.address_family = socket.AF_INET6
+            self.address_family = socket.AF_INET6 # socket 只有服务器才用到底层
         self.allow_reuse_address = allow_reuse_address
         super().__init__(*args, **kwargs)
 
@@ -154,6 +160,7 @@ class WSGIRequestHandler(simple_server.WSGIRequestHandler):
         level(format, *args, extra=extra)
 
     def get_environ(self):
+        # header-spoofing 头欺骗
         # Strip all headers with underscores in the name before constructing
         # the WSGI environ. This prevents header-spoofing based on ambiguity
         # between underscores and dashes both normalized to underscores in WSGI

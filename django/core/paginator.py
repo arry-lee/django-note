@@ -1,3 +1,6 @@
+# Last-Modified：2019年8月10日07:26:51
+# View-Couter：1
+
 import collections.abc
 import inspect
 import warnings
@@ -36,7 +39,7 @@ class Paginator:
         self.allow_empty_first_page = allow_empty_first_page
 
     def validate_number(self, number):
-        """Validate the given 1-based page number."""
+        """检查页码"""
         try:
             if isinstance(number, float) and not number.is_integer():
                 raise ValueError
@@ -54,6 +57,7 @@ class Paginator:
 
     def get_page(self, number):
         """
+        返回有效的页
         Return a valid page, even if the page argument isn't a number or isn't
         in range.
         """
@@ -61,7 +65,7 @@ class Paginator:
             number = self.validate_number(number)
         except PageNotAnInteger:
             number = 1
-        except EmptyPage:
+        except EmptyPage: # 空白页会返回最后一页
             number = self.num_pages
         return self.page(number)
 
@@ -70,12 +74,15 @@ class Paginator:
         number = self.validate_number(number)
         bottom = (number - 1) * self.per_page
         top = bottom + self.per_page
+
+        # 孤儿检测
         if top + self.orphans >= self.count:
             top = self.count
         return self._get_page(self.object_list[bottom:top], number, self)
 
     def _get_page(self, *args, **kwargs):
         """
+        这个钩子使得可以使用不同的Page
         Return an instance of a single page.
 
         This hook can be used by subclasses to use an alternative to the
@@ -139,9 +146,9 @@ class QuerySetPaginator(Paginator):
 class Page(collections.abc.Sequence):
 
     def __init__(self, object_list, number, paginator):
-        self.object_list = object_list
-        self.number = number
-        self.paginator = paginator
+        self.object_list = object_list # 该页对象
+        self.number = number # 页码
+        self.paginator = paginator # 分页器
 
     def __repr__(self):
         return '<Page %s of %s>' % (self.number, self.paginator.num_pages)
@@ -152,11 +159,20 @@ class Page(collections.abc.Sequence):
     def __getitem__(self, index):
         if not isinstance(index, (int, slice)):
             raise TypeError
+        # 把 QuerySet转换成列表这样也不用每次都要查询数据库
         # The object_list is converted to a list so that if it was a QuerySet
         # it won't be a database hit per __getitem__.
         if not isinstance(self.object_list, list):
             self.object_list = list(self.object_list)
         return self.object_list[index]
+
+    # 这个页对象可以继承、模仿到模型里
+    #     def next_object(self):
+    #         try:
+    #             nx = Article.objects.get(self.pk + 1)
+    #         except:
+    #             nx = None
+    #         return n
 
     def has_next(self):
         return self.number < self.paginator.num_pages

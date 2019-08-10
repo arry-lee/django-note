@@ -27,14 +27,14 @@ DEBUG_PROPAGATE_EXCEPTIONS = False
 # People who get code error notifications.
 # In the format [('Full Name', 'email@example.com'), ('Full Name', 'anotheremail@example.com')]
 
-# 获取代码错误通知的人员
+# 管理员邮箱
 ADMINS = []
 
 # List of IP addresses, as strings, that:
 #   * See debug comments, when DEBUG is true
 #   * Receive x-headers
 
-# IP地址列表，作为字符串，表示：
+# 内部人员IP地址列表，作为字符串，表示：
 # *当DEBUG为true时，请参阅调试注释
 # *接收x-headers
 INTERNAL_IPS = []

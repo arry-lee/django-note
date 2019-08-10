@@ -1,4 +1,6 @@
-"Database cache backend."
+# 数据库缓存后端 没什么用有这个功夫直径查数据库不好吗
+
+"""Database cache backend."""
 import base64
 import pickle
 from datetime import datetime

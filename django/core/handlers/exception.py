@@ -1,3 +1,6 @@
+# Last-Modified：2019年8月10日08:20:40
+# View-Couter：1
+
 import logging
 import sys
 from functools import wraps
@@ -17,6 +20,7 @@ from django.views import debug
 
 def convert_exception_to_response(get_response):
     """
+    把所有异常都变成响应的一个装饰器
     Wrap the given get_response callable in exception-to-response conversion.
 
     All exceptions will be converted. All known 4xx exceptions (Http404,
@@ -115,6 +119,7 @@ def get_exception_response(request, resolver, status_code, exception):
 
 def handle_uncaught_exception(request, resolver, exc_info):
     """
+    服务器错误响应
     Processing for any otherwise uncaught exceptions (those that will
     generate HTTP 500 responses).
     """

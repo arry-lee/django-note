@@ -1,3 +1,7 @@
+# Last-Modified：2019年8月10日07:26:51
+# View-Couter：1
+
+# 实现了各种校验器，会用在字段校验和表单校验上
 import ipaddress
 import re
 from pathlib import Path
@@ -12,7 +16,7 @@ from django.utils.translation import gettext_lazy as _, ngettext_lazy
 # These values, if given to validate(), will trigger the self.required check.
 EMPTY_VALUES = (None, '', [], (), {})
 
-
+# SimpleLazyObject 把一个可调用对象变懒
 def _lazy_re_compile(regex, flags=0):
     """Lazily compile a regex with flags."""
     def _compile():

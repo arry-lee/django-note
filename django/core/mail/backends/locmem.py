@@ -14,6 +14,8 @@ class EmailBackend(BaseEmailBackend):
     rather than sending them out on the wire.
 
     The dummy outbox is accessible through the outbox instance attribute.
+
+    把邮件信息都写到 outbox 属性里供你读取测试
     """
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

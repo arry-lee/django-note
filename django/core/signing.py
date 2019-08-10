@@ -1,4 +1,5 @@
 """
+签名函数 url-safe格式加密JSON对象
 Functions for creating and restoring url-safe signed JSON objects.
 
 The format used looks like this:

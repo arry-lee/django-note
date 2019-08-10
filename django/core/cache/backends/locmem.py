@@ -1,3 +1,5 @@
+# 线程安全的内存型缓存
+# 用到了 pickle 模块
 "Thread-safe in-memory cache backend."
 import pickle
 import time

@@ -3,7 +3,7 @@ from urllib.parse import quote
 
 TEMPLATE_FRAGMENT_KEY_TEMPLATE = 'template.cache.%s.%s'
 
-
+# 生成缓存模板片段的key
 def make_template_fragment_key(fragment_name, vary_on=None):
     if vary_on is None:
         vary_on = ()

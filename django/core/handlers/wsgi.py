@@ -1,3 +1,6 @@
+# Last-Modified：2019年8月10日08:20:40
+# View-Couter：1
+
 import cgi
 import codecs
 import re
@@ -136,9 +139,9 @@ class WSGIHandler(base.BaseHandler):
 
     def __call__(self, environ, start_response):
         set_script_prefix(get_script_name(environ))
-        signals.request_started.send(sender=self.__class__, environ=environ)
+        signals.request_started.send(sender=self.__class__, environ=environ) #发送请求已开始信号
         request = self.request_class(environ)
-        response = self.get_response(request)
+        response = self.get_response(request) # get_response 未定义 继承自 base.BaseHandler
 
         response._handler_class = self.__class__
 

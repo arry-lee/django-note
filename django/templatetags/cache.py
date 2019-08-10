@@ -1,3 +1,23 @@
+# Last-Modified：2019年8月9日19:43:42
+# View-Couter：1
+
+# 缓存模板上需要计算的元素
+
+"""
+    {% load cache %}
+    {% cache [expire_time] [fragment_name] %}
+        .. some expensive processing ..
+    {% endcache %}
+
+    {% load cache %}
+    {% cache [expire_time] [fragment_name] [var1] [var2] .. %}
+        .. some expensive processing ..
+    {% endcache %}
+
+    {% cache ....  using="cachename" %}
+
+Each unique set of arguments will result in a unique cache entry.
+"""
 from django.core.cache import InvalidCacheBackendError, caches
 from django.core.cache.utils import make_template_fragment_key
 from django.template import (

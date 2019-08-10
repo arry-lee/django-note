@@ -8,6 +8,6 @@ handler403 = defaults.permission_denied
 handler404 = defaults.page_not_found
 handler500 = defaults.server_error
 
-
+# url 还是能用的 from django.conf.urls import url,include
 def url(regex, view, kwargs=None, name=None):
     return re_path(regex, view, kwargs, name)

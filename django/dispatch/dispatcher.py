@@ -1,3 +1,17 @@
+# Last-Modified：2019年8月10日06:49:09
+# View-Couter：1
+"""
+生产者消费者模型;
+线程模块只用了一个锁，threading.Lock()，是异步任务吗
+不是，这些receiver 是顺序执行的
+ return [
+            (receiver, receiver(signal=self, sender=sender, **named))
+            for receiver in self._live_receivers(sender)
+        ]
+
+
+异步执行还是需要django-celery了
+"""
 import threading
 import weakref
 
@@ -5,9 +19,9 @@ from django.utils.inspect import func_accepts_kwargs
 
 
 def _make_id(target):
-    if hasattr(target, '__func__'):
+    if hasattr(target, '__func__'):#函数对象id生成法
         return (id(target.__self__), id(target.__func__))
-    return id(target)
+    return id(target) #实例id生成
 
 
 NONE_ID = _make_id(None)
@@ -18,6 +32,7 @@ NO_RECEIVERS = object()
 
 class Signal:
     """
+    所以信号量的基类
     Base class for all signals
 
     Internal attributes:
@@ -32,27 +47,29 @@ class Signal:
         providing_args
             A list of the arguments this signal can pass along in a send() call.
         """
-        self.receivers = []
+        self.receivers = [] #信号量绑定接收器
         if providing_args is None:
             providing_args = []
         self.providing_args = set(providing_args)
-        self.lock = threading.Lock()
-        self.use_caching = use_caching
-        # For convenience we create empty caches even if they are not used.
-        # A note about caching: if use_caching is defined, then for each
-        # distinct sender we cache the receivers that sender has in
-        # 'sender_receivers_cache'. The cache is cleaned when .connect() or
-        # .disconnect() is called and populated on send().
+        self.lock = threading.Lock() #资源锁
+        self.use_caching = use_caching #缓存否
+
+        # 为了方便 创建空的缓存即便没用到
+        # 若使用 use_caching 对于每个信号发送者都缓存器接受者名单在 sender_receivers_cache 里
+        # 当 .connect() or .disconnect() 被调用时清理 在send() 里面设置
+
+        # 弱引用字典也不知道干嘛的
         self.sender_receivers_cache = weakref.WeakKeyDictionary() if use_caching else {}
         self._dead_receivers = False
 
     def connect(self, receiver, sender=None, weak=True, dispatch_uid=None):
         """
+        把接受方连接到发送方里面
         Connect receiver to sender for signal.
 
         Arguments:
 
-            receiver
+            receiver  函数|方法
                 A function or an instance method which is to receive signals.
                 Receivers must be hashable objects.
 
@@ -64,17 +81,17 @@ class Signal:
                 will not be added if another receiver was already connected
                 with that dispatch_uid.
 
-            sender
+            sender   需要响应的对象
                 The sender to which the receiver should respond. Must either be
                 a Python object, or None to receive events from any sender.
 
-            weak
+            weak   弱引用
                 Whether to use weak references to the receiver. By default, the
                 module will attempt to use weak references to the receiver
                 objects. If this parameter is false, then strong references will
                 be used.
 
-            dispatch_uid
+            dispatch_uid 接收器uid
                 An identifier used to uniquely identify a particular instance of
                 a receiver. This will usually be a string, though it may be
                 anything hashable.
@@ -90,6 +107,7 @@ class Signal:
                 raise ValueError("Signal receivers must accept keyword arguments (**kwargs).")
 
         if dispatch_uid:
+            # lookup_key 用元组查找 绑定的收发双方
             lookup_key = (dispatch_uid, _make_id(sender))
         else:
             lookup_key = (_make_id(receiver), _make_id(sender))
@@ -105,7 +123,9 @@ class Signal:
             weakref.finalize(receiver_object, self._remove_receiver)
 
         with self.lock:
-            self._clear_dead_receivers()
+            self._clear_dead_receivers() #清理失效的接收者
+
+            # lookup_key 不在 self.receivers 中则加入
             if not any(r_key == lookup_key for r_key, _ in self.receivers):
                 self.receivers.append((lookup_key, receiver))
             self.sender_receivers_cache.clear()
@@ -119,11 +139,11 @@ class Signal:
 
         Arguments:
 
-            receiver
+            receiver # 要断开的接收器 提供了dispatch_uid就可以
                 The registered receiver to disconnect. May be none if
                 dispatch_uid is specified.
 
-            sender
+            sender  # 要断开的发送器
                 The registered sender to disconnect
 
             dispatch_uid
@@ -135,7 +155,7 @@ class Signal:
             lookup_key = (_make_id(receiver), _make_id(sender))
 
         disconnected = False
-        with self.lock:
+        with self.lock: # 果不其然 上下文锁出现了
             self._clear_dead_receivers()
             for index in range(len(self.receivers)):
                 (r_key, _) = self.receivers[index]
@@ -159,10 +179,10 @@ class Signal:
 
         Arguments:
 
-            sender
+            sender 发送方
                 The sender of the signal. Either a specific object or None.
 
-            named
+            named 关键字参数
                 Named arguments which will be passed to receivers.
 
         Return a list of tuple pairs [(receiver, response), ... ].

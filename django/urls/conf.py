@@ -53,10 +53,11 @@ def include(arg, namespace=None):
                 )
     return (urlconf_module, app_name, namespace)
 
-
+# 路由映射
 def _path(route, view, kwargs=None, name=None, Pattern=None):
     if isinstance(view, (list, tuple)):
         # For include(...) processing.
+        # 不是端点机械路由
         pattern = Pattern(route, is_endpoint=False)
         urlconf_module, app_name, namespace = view
         return URLResolver(

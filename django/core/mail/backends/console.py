@@ -1,4 +1,5 @@
 """
+在命令行里测试时用的邮件后端
 Email backend that writes messages to console instead of sending them.
 """
 import sys

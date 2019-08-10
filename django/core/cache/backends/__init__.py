@@ -1,0 +1,1 @@
+# 使用 redis 后端 要按照 django-redis

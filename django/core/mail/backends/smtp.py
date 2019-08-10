@@ -1,3 +1,4 @@
+# 真正的邮件后端
 """SMTP email backend class."""
 import smtplib
 import ssl

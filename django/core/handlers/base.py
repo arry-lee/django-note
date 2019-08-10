@@ -1,3 +1,7 @@
+# Last-Modified：2019年8月10日08:20:40
+# View-Couter：1
+# 基本上看懂了中间件的工作流程 挺有意思的
+
 import logging
 import types
 
@@ -22,6 +26,7 @@ class BaseHandler:
 
     def load_middleware(self):
         """
+        加载中间件
         Populate middleware lists from settings.MIDDLEWARE.
 
         Must be called after the environment is fixed (see __call__ in subclasses).
@@ -29,10 +34,12 @@ class BaseHandler:
         self._view_middleware = []
         self._template_response_middleware = []
         self._exception_middleware = []
-
+        # convert_exception_to_response 是一个装饰器函数
+        # 所以 handler 是一个函数
+        # self._get_response 是一个函数调用链 从 url 层层包裹到输出
         handler = convert_exception_to_response(self._get_response)
         for middleware_path in reversed(settings.MIDDLEWARE):
-            middleware = import_string(middleware_path)
+            middleware = import_string(middleware_path) #逆向导入中间件最后的最先调用
             try:
                 mw_instance = middleware(handler)
             except MiddlewareNotUsed as exc:
@@ -71,9 +78,9 @@ class BaseHandler:
     def get_response(self, request):
         """Return an HttpResponse object for the given HttpRequest."""
         # Setup default url resolver for this thread
-        set_urlconf(settings.ROOT_URLCONF)
-        response = self._middleware_chain(request)
-        response._closable_objects.append(request)
+        set_urlconf(settings.ROOT_URLCONF) #url映射到视图
+        response = self._middleware_chain(request) # 经过层层中间件
+        response._closable_objects.append(request) # 该请求可关闭
         if response.status_code >= 400:
             log_response(
                 '%s: %s', response.reason_phrase, request.path,
@@ -84,6 +91,11 @@ class BaseHandler:
 
     def _get_response(self, request):
         """
+        从 url 到 response 连接所有的中间件
+        返回可调用的函数
+
+        request/response middleware
+
         Resolve and call the view, then apply view, exception, and
         template_response middleware. This method is everything that happens
         inside the request/response middleware.
@@ -97,14 +109,17 @@ class BaseHandler:
         else:
             resolver = get_resolver()
 
-        resolver_match = resolver.resolve(request.path_info)
-        callback, callback_args, callback_kwargs = resolver_match
+        resolver_match = resolver.resolve(request.path_info) #解析请求路径
+        callback, callback_args, callback_kwargs = resolver_match #回调函数 位置参数 关键字参数
         request.resolver_match = resolver_match
 
-        # Apply view middleware
+        # 视图处理中间件
         for middleware_method in self._view_middleware:
+            # 中间件接口格式 middleware_method(request, callback, callback_args, callback_kwargs)
+            # 用中间件方法包裹 请求 上个回调函数 参数
+            # 中间件是不会返回响应的
             response = middleware_method(request, callback, callback_args, callback_kwargs)
-            if response:
+            if response: #如果有响应就结束？ 是的某一步返回了 HttpResponse 就可以返回了
                 break
 
         if response is None:
@@ -128,6 +143,8 @@ class BaseHandler:
 
         # If the response supports deferred rendering, apply template
         # response middleware and then render the response
+
+        # 模板响应中间件
         elif hasattr(response, 'render') and callable(response.render):
             for middleware_method in self._template_response_middleware:
                 response = middleware_method(request, response)
@@ -146,6 +163,7 @@ class BaseHandler:
 
         return response
 
+    # 异常处理中间件 DEBUG 用的
     def process_exception_by_middleware(self, exception, request):
         """
         Pass the exception to the exception middleware. If no middleware

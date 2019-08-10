@@ -1,4 +1,5 @@
 """
+发邮件的工具
 Tools for sending email.
 """
 from django.conf import settings

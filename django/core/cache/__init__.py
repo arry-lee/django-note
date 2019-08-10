@@ -1,4 +1,15 @@
+# Last-Modified：2019年8月10日09:49:01
+# View-Couter：1
+
 """
+缓存框架
+
+所有的缓存后端都有相同的 api
+
+内置的缓存使用此处定义的 cache 变量、这是一个单例模式
+非内置的缓存使用 caches 字典
+
+
 Caching framework.
 
 This package defines set of cache backends that all conform to a simple API.
@@ -110,7 +121,7 @@ class DefaultCacheProxy:
         return caches[DEFAULT_CACHE_ALIAS] == other
 
 
-cache = DefaultCacheProxy()
+cache = DefaultCacheProxy() #只有一个实例，天然的单例模式
 
 
 def close_caches(**kwargs):
@@ -121,4 +132,4 @@ def close_caches(**kwargs):
         cache.close()
 
 
-signals.request_finished.connect(close_caches)
+signals.request_finished.connect(close_caches) #请求结束就关闭缓存

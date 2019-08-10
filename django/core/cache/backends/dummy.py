@@ -1,4 +1,6 @@
-"Dummy cache backend"
+# 开发时不想用缓存的时候使用
+
+"""Dummy cache backend"""
 
 from django.core.cache.backends.base import DEFAULT_TIMEOUT, BaseCache
 

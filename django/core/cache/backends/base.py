@@ -1,4 +1,11 @@
-"Base Cache class."
+# Last-Modified：2019年8月10日09:26:24
+# View-Couter：1
+
+# Cache 是一个基类
+# 不管后端实现的话当成一个字典容器使用即可
+
+
+"""Base Cache class."""
 import time
 import warnings
 
@@ -49,12 +56,14 @@ def get_key_func(key_func):
 
 class BaseCache:
     def __init__(self, params):
+        # timeout TIMEOUT 300 链式get
         timeout = params.get('timeout', params.get('TIMEOUT', 300))
         if timeout is not None:
             try:
                 timeout = int(timeout)
             except (ValueError, TypeError):
                 timeout = 300
+        # 可以是None
         self.default_timeout = timeout
 
         options = params.get('OPTIONS', {})
@@ -64,6 +73,7 @@ class BaseCache:
         except (ValueError, TypeError):
             self._max_entries = 300
 
+        # cull_frequency 剔除频率
         cull_frequency = params.get('cull_frequency', options.get('CULL_FREQUENCY', 3))
         try:
             self._cull_frequency = int(cull_frequency)
@@ -79,11 +89,12 @@ class BaseCache:
         Return the timeout value usable by this backend based upon the provided
         timeout.
         """
-        if timeout == DEFAULT_TIMEOUT:
+        if timeout == DEFAULT_TIMEOUT: # 因为 None 是一个合法值且不是默认值 所以需要一个默认值占位符 object()
             timeout = self.default_timeout
         elif timeout == 0:
             # ticket 21147 - avoid time.time() related precision issues
             timeout = -1
+        # 0 是立即过期 None 是永不过期 默认值是300不是None
         return None if timeout is None else time.time() + timeout
 
     def make_key(self, key, version=None):
@@ -154,6 +165,11 @@ class BaseCache:
 
     def get_or_set(self, key, default, timeout=DEFAULT_TIMEOUT, version=None):
         """
+        default 可以是可调用的
+        那就意味着视图里可以这么写
+        context = cache.get_or_set('context',self.get_context_data)
+
+
         Fetch a given key from the cache. If the key does not exist,
         add the key and set it to the default value. The default value can
         also be any callable. If timeout is given, use that timeout for the
@@ -175,12 +191,27 @@ class BaseCache:
 
     def has_key(self, key, version=None):
         """
+        cache.has_key('context')
+
         Return True if the key is in the cache and has not expired.
         """
         return self.get(key, version=version) is not None
 
     def incr(self, key, delta=1, version=None):
         """
+        值如果在字典里就不好加了|字典有加法吗？|加的键重复了是什么行为|
+        如果有个计数器 counter
+        if cache.has_key('counter'):
+            counter = cache.incr('counter')
+        else:
+            cache.set('counter',1)
+            counter = 1
+
+        context = cache.get_or_set('context',self.get_context_data)
+
+        就是单独缓存 counter
+        context['counter'] = counter
+
         Add delta to value in the cache. If the key does not exist, raise a
         ValueError exception.
         """
@@ -209,6 +240,11 @@ class BaseCache:
 
     def set_many(self, data, timeout=DEFAULT_TIMEOUT, version=None):
         """
+        这里缓存 context
+        # keys = ('k1','k2',)
+        # context = cache.get_many(keys)
+        # cache.set_many(context)
+
         Set a bunch of values in the cache at once from a dict of key/value
         pairs.  For certain backends (memcached), this is much more efficient
         than calling set() multiple times.

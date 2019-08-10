@@ -1,3 +1,5 @@
+# 文件储存系统
+#
 import os
 from datetime import datetime
 from urllib.parse import urljoin
@@ -24,6 +26,7 @@ __all__ = (
 
 class Storage:
     """
+    文件存储基类
     A base storage class, providing some default behaviors that all other
     storage systems can inherit or override, as necessary.
     """

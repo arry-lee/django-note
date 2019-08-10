@@ -1,4 +1,6 @@
 """
+临时文件的方法
+
 The temp module provides a NamedTemporaryFile that can be reopened in the same
 process on any platform. Most platforms use the standard Python
 tempfile.NamedTemporaryFile class, but Windows users are given a custom class.

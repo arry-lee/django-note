@@ -1,3 +1,7 @@
+# 这里是创建项目模板和应用模板的方法
+# 魔改一下加入其它的模板
+# 也可以直接拷贝过去的 那需要自己改变量名字
+# 修改 settings.py-tpl 里面的配置
 import cgi
 import mimetypes
 import os
@@ -41,6 +45,7 @@ class TemplateCommand(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('name', help='Name of the application or project.')
         parser.add_argument('directory', nargs='?', help='Optional destination directory')
+        # 默认的模板位置
         parser.add_argument('--template', help='The path or URL to load the template from.')
         parser.add_argument(
             '--extension', '-e', dest='extensions',
@@ -90,8 +95,8 @@ class TemplateCommand(BaseCommand):
                               "filenames: %s\n" %
                               (app_or_project, ', '.join(extra_files)))
 
-        base_name = '%s_name' % app_or_project
-        base_subdir = '%s_template' % app_or_project
+        base_name = '%s_name' % app_or_project # startapp
+        base_subdir = '%s_template' % app_or_project # app_template
         base_directory = '%s_directory' % app_or_project
         camel_case_name = 'camel_case_%s_name' % app_or_project
         camel_case_value = ''.join(x for x in name.title() if x != '_')
