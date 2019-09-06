@@ -1,3 +1,4 @@
+# 事务相关
 from contextlib import ContextDecorator, contextmanager
 
 from django.db import (
@@ -9,7 +10,7 @@ class TransactionManagementError(ProgrammingError):
     """Transaction management is used improperly."""
     pass
 
-
+# 连接也是一个类似文件的资源可读可写
 def get_connection(using=None):
     """
     Get a database connection by name, or the default database connection
@@ -19,27 +20,27 @@ def get_connection(using=None):
         using = DEFAULT_DB_ALIAS
     return connections[using]
 
-
+# 获取自动提交状态
 def get_autocommit(using=None):
     """Get the autocommit status of the connection."""
     return get_connection(using).get_autocommit()
 
-
+# 设置自动提交
 def set_autocommit(autocommit, using=None):
     """Set the autocommit status of the connection."""
     return get_connection(using).set_autocommit(autocommit)
 
-
+# 提交
 def commit(using=None):
     """Commit a transaction."""
     get_connection(using).commit()
 
-
+# 回滚
 def rollback(using=None):
     """Roll back a transaction."""
     get_connection(using).rollback()
 
-
+# 保存点
 def savepoint(using=None):
     """
     Create a savepoint (if supported and required by the backend) inside the

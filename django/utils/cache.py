@@ -1,3 +1,5 @@
+# 请求头里的Vary字段可以根据不同首部字段来获取缓存
+
 """
 This module contains helper functions for controlling caching. It does so by
 managing the "Vary" header of responses. It includes functions to patch the

@@ -150,11 +150,12 @@ def call_command(command_name, *args, **options):
 
 class ManagementUtility:
     """
+    封装 django-admin and manage.py 工具
     Encapsulate the logic of the django-admin and manage.py utilities.
     """
     def __init__(self, argv=None):
         self.argv = argv or sys.argv[:]
-        self.prog_name = os.path.basename(self.argv[0])
+        self.prog_name = os.path.basename(self.argv[0]) # 第一个参数进程名
         if self.prog_name == '__main__.py':
             self.prog_name = 'python -m django'
         self.settings_exception = None

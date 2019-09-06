@@ -1,3 +1,5 @@
+#一个mixin类，用于将文件方法转发到底层文件对象
+#内部文件对象必须被称为 file
 class FileProxyMixin:
     """
     A mixin class used to forward file methods to an underlaying file

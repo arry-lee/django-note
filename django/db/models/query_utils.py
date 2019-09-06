@@ -46,6 +46,7 @@ class QueryWrapper:
 
 class Q(tree.Node):
     """
+    把过滤器封装成对象，可以进行布尔运算
     Encapsulate filters as objects that can then be combined logically (using
     `&` and `|`).
     """

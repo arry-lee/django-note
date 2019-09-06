@@ -59,6 +59,7 @@ class Promise:
 
 def lazy(func, *resultclasses):
     """
+    将任何可调用对象转换为惰性求值可调用对象
     Turn any callable into a lazy evaluated callable. result classes or types
     is required -- at least one is needed so that the automatic forcing of
     the lazy evaluation code is triggered. Results are not memoized; the

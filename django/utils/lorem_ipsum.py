@@ -1,4 +1,5 @@
 """
+用来生成不违和的随机拉丁文本
 Utility functions for generating "lorem ipsum" Latin text.
 """
 
