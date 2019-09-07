@@ -41,7 +41,7 @@ MEDIA_TYPES = ('css', 'js')
 class MediaOrderConflictWarning(RuntimeWarning):
     pass
 
-
+# css 和 js 称为媒体 这个Media类表示一个wiget所用的css和js
 @html_safe
 class Media:
     def __init__(self, media=None, css=None, js=None):

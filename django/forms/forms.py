@@ -1,3 +1,8 @@
+
+#Last-View：2019年9月7日20:28:18
+#View-Counter：1
+
+
 """
 Form classes
 """
@@ -22,6 +27,7 @@ from .renderers import get_default_renderer
 __all__ = ('BaseForm', 'Form')
 
 
+# 声明字段的元类，使用了Media所以继承 MediaDefiningClass 元类
 class DeclarativeFieldsMetaclass(MediaDefiningClass):
     """Collect Fields declared on the base classes."""
     def __new__(mcs, name, bases, attrs):
@@ -29,7 +35,7 @@ class DeclarativeFieldsMetaclass(MediaDefiningClass):
         current_fields = []
         for key, value in list(attrs.items()):
             if isinstance(value, Field):
-                current_fields.append((key, value))
+                current_fields.append((key, value)) # 将类属性里的字段添加到 declared_fields 里面
                 attrs.pop(key)
         attrs['declared_fields'] = dict(current_fields)
 
@@ -40,14 +46,14 @@ class DeclarativeFieldsMetaclass(MediaDefiningClass):
         for base in reversed(new_class.__mro__):
             # Collect fields from base class.
             if hasattr(base, 'declared_fields'):
-                declared_fields.update(base.declared_fields)
+                declared_fields.update(base.declared_fields) # 将父类的字段拷贝出来
 
             # Field shadowing.
             for attr, value in base.__dict__.items():
                 if value is None and attr in declared_fields:
-                    declared_fields.pop(attr)
+                    declared_fields.pop(attr)  # 剔除空的字段
 
-        new_class.base_fields = declared_fields
+        new_class.base_fields = declared_fields  # 增加两个相同属性一份留底
         new_class.declared_fields = declared_fields
 
         return new_class
@@ -70,7 +76,7 @@ class BaseForm:
                  initial=None, error_class=ErrorList, label_suffix=None,
                  empty_permitted=False, field_order=None, use_required_attribute=None, renderer=None):
         self.is_bound = data is not None or files is not None
-        self.data = MultiValueDict() if data is None else data
+        self.data = MultiValueDict() if data is None else data  # 多值字典保存多值返回最新值
         self.files = MultiValueDict() if files is None else files
         self.auto_id = auto_id
         if prefix is not None:
@@ -78,7 +84,7 @@ class BaseForm:
         self.initial = initial or {}
         self.error_class = error_class
         # Translators: This is the default suffix added to form field labels
-        self.label_suffix = label_suffix if label_suffix is not None else _(':')
+        self.label_suffix = label_suffix if label_suffix is not None else _(':')  # 标签:
         self.empty_permitted = empty_permitted
         self._errors = None  # Stores the errors after clean() has been called.
 
@@ -87,14 +93,14 @@ class BaseForm:
         # alter self.fields, we create self.fields here by copying base_fields.
         # Instances should always modify self.fields; they should not modify
         # self.base_fields.
-        self.fields = copy.deepcopy(self.base_fields)
-        self._bound_fields_cache = {}
-        self.order_fields(self.field_order if field_order is None else field_order)
+        self.fields = copy.deepcopy(self.base_fields)  # 实例只能修改自己的 field
+        self._bound_fields_cache = {}  # 绑定的字段缓存
+        self.order_fields(self.field_order if field_order is None else field_order) # 排序
 
         if use_required_attribute is not None:
-            self.use_required_attribute = use_required_attribute
+            self.use_required_attribute = use_required_attribute # 是否必须
 
-        if self.empty_permitted and self.use_required_attribute:
+        if self.empty_permitted and self.use_required_attribute: # 可以为空与必须不可同时为True
             raise ValueError(
                 'The empty_permitted and use_required_attribute arguments may '
                 'not both be True.'
@@ -175,6 +181,7 @@ class BaseForm:
             self.full_clean()
         return self._errors
 
+    # 为什么不用 @property
     def is_valid(self):
         """Return True if the form has no errors, or False otherwise."""
         return self.is_bound and not self.errors
@@ -499,3 +506,4 @@ class Form(BaseForm, metaclass=DeclarativeFieldsMetaclass):
     # fancy metaclass stuff purely for the semantic sugar -- it allows one
     # to define a form using declarative syntax.
     # BaseForm itself has no way of designating self.fields.
+    # BaseForm 没办法使用元类,Form使用了元类声明性语法

@@ -390,8 +390,7 @@ class FileResponse(StreamingHttpResponse):
     """
     A streaming HTTP response class optimized for files.
     """
-    block_size = 4096
-
+    block_size = 4096  # 4KB
     def __init__(self, *args, as_attachment=False, filename='', **kwargs):
         self.as_attachment = as_attachment
         self.filename = filename

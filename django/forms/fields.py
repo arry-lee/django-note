@@ -116,6 +116,7 @@ class Field:
 
         super().__init__()
 
+    #--------------------有什么用呢
     def prepare_value(self, value):
         return value
 
@@ -163,7 +164,7 @@ class Field:
             return initial
         return data
 
-    def widget_attrs(self, widget):
+    def widget_attrs(self, widget):  # 给定widget实例 返回一个属性字典
         """
         Given a Widget instance (*not* a Widget class), return a dictionary of
         any HTML attributes that should be added to the Widget, based on this
@@ -270,7 +271,7 @@ class IntegerField(Field):
             value = formats.sanitize_separators(value)
         # Strip trailing decimal and zeros.
         try:
-            value = int(self.re_decimal.sub('', str(value)))
+            value = int(self.re_decimal.sub('', str(value))) #移除末尾的小数点和0
         except (ValueError, TypeError):
             raise ValidationError(self.error_messages['invalid'], code='invalid')
         return value
